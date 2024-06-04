@@ -1,0 +1,3 @@
+scipy # pour les formats .wav des fichiers audios
+python-dotenv # pour les variables d'environnement (avec fichier caché .env)
+azure-cognitiveservices-speech  # pour l'utilisation de Speech depuis Azure
