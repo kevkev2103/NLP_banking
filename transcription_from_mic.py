@@ -1,9 +1,16 @@
 # YouTube tutorial
 # https://youtu.be/2X5XBr19-G0?si=EC6aZicqn1bTgHhM
 
+import time
 import os
 from dotenv import load_dotenv
 import azure.cognitiveservices.speech as speechsdk
+import pymongo
+from pymongo import MongoClient
+
+cluster = MongoClient("mongodb+srv://t7bo:t7bo@clusterspeechtotext.kzzprwp.mongodb.net/?retryWrites=true&w=majority&appName=ClusterSpeechToText")
+db = cluster["AzureSpeechToText"]
+collection = db["transcriptions"]
 
 load_dotenv()
 speech_key = os.getenv("api_key")
@@ -44,6 +51,7 @@ def speak_to_microphone(api_key, region, output_file):
 
                 if "stop session" in speech_recognition_result.text.lower() or "stop session" in recognized_text.lower(): # end session
                     print("Session ended by user")
+                    collection.insert_one({"transcription": result.text, "timestamp": time.time()})
                     break
 
             elif speech_recognition_result.reason == speechsdk.ResultReason.NoMatch: # if audio not valid speech

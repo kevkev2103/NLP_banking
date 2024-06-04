@@ -17,6 +17,14 @@ except ImportError:
     """)
     import sys
     sys.exit(1)
+    
+import pymongo
+from pymongo import MongoClient
+
+cluster = MongoClient("mongodb+srv://t7bo:t7bo@clusterspeechtotext.kzzprwp.mongodb.net/?retryWrites=true&w=majority&appName=ClusterSpeechToText")
+db = cluster["AzureSpeechToText"]
+collection = db["transcriptions"]
+
 
 def transcription_from_audiofile(api_key, region, audio_file_path, output_file):
     """transcribes a conversation from an audio file (.wav)"""
@@ -36,6 +44,7 @@ def transcription_from_audiofile(api_key, region, audio_file_path, output_file):
         print("Texte reconnu: {}".format(result.text))
         with open(output_file, "w", encoding='utf-8') as file:
             file.write(result.text)
+        collection.insert_one({"transcription": result.text, "timestamp": time.time()})
     elif result.reason == speechsdk.ResultReason.NoMatch:
         print("Aucun texte reconnu: {}".format(result.no_match_details))
     elif result.reason == speechsdk.ResultReason.Canceled:
@@ -43,6 +52,7 @@ def transcription_from_audiofile(api_key, region, audio_file_path, output_file):
         print("La reconnaissance a été annulée: {}".format(cancellation_details.reason))
         if cancellation_details.reason == speechsdk.CancellationReason.Error:
             print("Error details: {}".format(cancellation_details.error_details))
+            
 
 output_file = "transcriptions/audio_wav_transcript.txt"
 transcription_from_audiofile(api_key=speech_key, region=service_region, audio_file_path="audio_files/converted_2.wav", output_file=output_file)
