@@ -5,3 +5,5 @@ azure-cognitiveservices-speech  # pour l'utilisation de Speech depuis Azure
 # sudo apt-get install libssl-dev libffi-dev
 # wget http://archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.0g-2ubuntu4_amd64.deb
 # sudo dpkg -i libssl1.1_1.1.0g-2ubuntu4_amd64.deb
+pymongo
+langchain
