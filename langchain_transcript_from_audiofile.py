@@ -1,6 +1,5 @@
 import os
 from dotenv import load_dotenv
-import time
 import threading
 import pymongo
 from pymongo import MongoClient
@@ -58,38 +57,118 @@ class SpeechToText:
         
         with open(output_file, "w", encoding='utf-8') as file:
             file.write(" ".join(all_results))
-        timestamp = datetime.now()
-        self.collection.insert_one({"transcription": " ".join(all_results), "timestamp": timestamp})
+        # timestamp = datetime.now()
+        # self.collection.insert_one({"transcription": " ".join(all_results), "timestamp": timestamp})
+        return " ".join(all_results)
 
 from langchain.chains.base import Chain
 from langchain.chains import LLMChain
+from transformers import pipeline
 
-class TranscriptionChain(Chain):
+class TranslationModel:
+    def __init__(self):
+        self.translation_pipeline = pipeline("translation", model="Helsinki-NLP/opus-mt-fr-en")
+
+    def translate(self, text):
+        result = self.translation_pipeline(text)
+        return result[0]['translation_text'] # Comme le pipeline retourne une liste de dictionnaires, result[0] accède au premier dictionnaire de cette liste.
+
+
+class Speech2TextTranslationChain(Chain):
     stt_model: SpeechToText = Field(...)
+    translation_model = TranslationModel = Field(...)
+    collection: pymongo.collection.Collection = Field(init=False)
 
-    def __init__(self, stt_model, *args, **kwargs):
+
+    def __init__(self, stt_model, translation_model, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.stt_model = stt_model
+        self.translation_model = translation_model
+        self.collection = self.stt_model.collection
 
     def _call(self, inputs):
-        audio_file_path = inputs["audio_file_path"]
-        output_file = inputs.get('output_file', 'transcriptions/audio_wav_transcript.txt')
-        self.stt_model.transcribe(audio_file_path, output_file)
-        with open(output_file, 'r', encoding='utf-8') as file:
-            transcription = file.read()
-        return {'transcription': transcription}
+        audio_file_path = inputs['audio_file_path']
+        output_file = inputs.get('output_file', 'transcriptions/audio_wav_transcript_translate.txt')
+        transcription = self.stt_model.transcribe(audio_file_path, output_file)
+        translation = self.translation_model.translate(transcription)
+        # timestamp = datetime.now()
+        # self.collection.insert_one({"transcription": transcription, "translation":translation, "timestamp": timestamp})
+        return {'transcription':transcription, 'translation':translation}
     
-    @property
-    def input_keys(self):
-        return ['audio_file_path']
+    @property # Ce décorateur est utilisé pour définir une méthode qui peut être accédée comme un attribut. En d'autres termes, il permet de définir des getters pour les attributs calculés.
+    def input_keys(self): # Ces méthodes définissent les clés d'entrée et de sortie de votre chaîne de traitement. Elles spécifient les noms des paramètres que la chaîne attend en entrée et les noms des résultats que la chaîne produira en sortie.
+        return ['audio_file_path'] # retourne une liste avec une seule chaîne de caractères 
+        # Cela signifie que la chaîne attendra un dictionnaire d'entrée avec une clé nommée audio_file_path.
     
     @property
     def output_keys(self):
-        return ['transcription']
+        return ['transcription', 'translation'] 
+    
+    '''
+    Ces propriétés sont importantes pour définir de manière explicite l'interface de votre chaîne,
+    c'est-à-dire ce qu'elle attend en entrée et ce qu'elle produit en sortie.
+    Cela permet à LangChain de gérer les chaînes de traitement de manière cohérente et modulable.
+    '''
+    
+# Utilisation du modèle avec LangChain
+stt_model = SpeechToText()
+translation_model = TranslationModel()
+chain = Speech2TextTranslationChain(stt_model=stt_model, translation_model=translation_model)
 
-# Utilisation du model avec LangChain
-transcription_chain = TranscriptionChain(stt_model=SpeechToText())
 audio_file_path = 'audio_files/output.wav'
-result = transcription_chain({'audio_file_path': audio_file_path})
+result = chain({'audio_file_path': audio_file_path})
 
-print(result['transcription'])
+print("Transcription:", result['transcription'])
+print("Translation:", result['translation'])
+
+
+
+
+class SentimentAnalysisModel:
+    def __init__(self):
+        self.sentiment_pipeline = pipeline("text-classification", model="mrm8488/distilroberta-finetuned-financial-news-sentiment-analysis")
+
+    def analyze_sentiment(self, text):
+        result = self.sentiment_pipeline(text)
+        return result[0]
+
+class SentimentAnalysisChain(Chain):
+    sentiment_model: SentimentAnalysisModel = Field(...)
+    # translation_model = TranslationModel = Field(...)
+    collection: pymongo.collection.Collection = Field(init=False)
+
+    def __init__(self, sentiment_model, collection, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # self.translation_model = translation_model
+        self.sentiment_model = sentiment_model
+        self.collection = collection
+
+    def _call(self, inputs):
+        transcription = inputs["transcription"]
+        translation = inputs["translation"]
+        sentiment = self.sentiment_model.analyze_sentiment(translation)
+        timestamp = datetime.now()
+        self.collection.insert_one({"transcription": transcription, "translation":translation, "timestamp": timestamp, "sentiment":sentiment})
+        return {'transcription': transcription, 'translation':translation, 'sentiment':sentiment}
+    
+    @property
+    def input_keys(self):
+        return ['transcription', 'translation']
+    
+    @property
+    def output_keys(self):
+        return ['transcription', 'translation', 'sentiment']
+    
+
+
+sentiment_model = SentimentAnalysisModel()
+# Second chain: translation -> sentiment analysis
+collection = stt_model.collection
+sentiment_analysis_chain = SentimentAnalysisChain(sentiment_model=sentiment_model, collection=collection)
+# result_sentiment = sentiment_analysis_chain({'translation': result_translation['translation']})
+# Second chain: translation -> sentiment analysis
+result_sentiment = sentiment_analysis_chain({
+    'transcription': result['transcription'],
+    'translation': result['translation']
+})
+print("Sentiment:", result_sentiment['sentiment'])
