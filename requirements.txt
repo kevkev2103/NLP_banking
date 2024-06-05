@@ -7,3 +7,7 @@ azure-cognitiveservices-speech  # pour l'utilisation de Speech depuis Azure
 # sudo dpkg -i libssl1.1_1.1.0g-2ubuntu4_amd64.deb
 pymongo
 langchain
+torch
+transformers
+sentencepiece # to instantiate tokenizer from Translation model
+sacremoses
