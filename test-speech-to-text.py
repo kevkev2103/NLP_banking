@@ -2,8 +2,8 @@ import os
 from dotenv import load_dotenv
 import azure.cognitiveservices.speech as speechsdk
 from pymongo import MongoClient
-from transformers import pipeline
-
+from azure.ai.textanalytics import TextAnalyticsClient
+from azure.core.credentials import AzureKeyCredential
 
 # Charger les variables d'environnement depuis le fichier .env
 load_dotenv()
@@ -13,14 +13,19 @@ region = os.getenv("AZURE_REGION")
 mongodb_uri = os.getenv("MONGODB_URI")
 mongodb_db_name = os.getenv("MONGODB_DB_NAME")
 mongodb_collection_name = os.getenv("MONGODB_COLLECTION_NAME")
+text_analytics_key = os.getenv("AZURE_TEXT_ANALYTICS_KEY")
+text_analytics_endpoint = os.getenv("AZURE_TEXT_ANALYTICS_ENDPOINT")
 
 # Connexion à la base de données MongoDB
 cluster = MongoClient(mongodb_uri)
 db = cluster[mongodb_db_name]
 collection = db[mongodb_collection_name]
 
-# Initialiser le pipeline NLP
-nlp = pipeline("text-classification", model="mrm8488/distilroberta-finetuned-financial-news-sentiment-analysis")
+# Configuration du client Azure Text Analytics
+text_analytics_client = TextAnalyticsClient(
+    endpoint=text_analytics_endpoint,
+    credential=AzureKeyCredential(text_analytics_key)
+)
 
 def speech_to_text(audio_file_path):
     speech_config = speechsdk.SpeechConfig(subscription=subscription_key, region=region, speech_recognition_language="fr-FR")
@@ -45,7 +50,18 @@ def speech_to_text(audio_file_path):
 
 def analyze_text(text):
     if text:
-        sentiment_result = nlp(text)
+        documents = [text]
+        response = text_analytics_client.analyze_sentiment(documents=documents)[0]
+        
+        sentiment_result = {
+            "sentiment": response.sentiment,
+            "confidence_scores": {
+                "positive": response.confidence_scores.positive,
+                "neutral": response.confidence_scores.neutral,
+                "negative": response.confidence_scores.negative
+            }
+        }
+        
         print("Résultat de l'analyse de sentiment: {}".format(sentiment_result))
         return sentiment_result
     else:
@@ -97,5 +113,3 @@ def process_audio_file(audio_file_path):
 if __name__ == "__main__":
     audio_file_path = "converted_1.wav"
     process_audio_file(audio_file_path)
-
-
