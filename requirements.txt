@@ -1,3 +1,6 @@
 azure-cognitiveservices-speech
 azure-ai-textanalytics
 pymongo
+python-dotenv
+transformers
+torch
