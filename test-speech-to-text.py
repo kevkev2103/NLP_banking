@@ -260,6 +260,6 @@ def process_audio_file(audio_file_path):
         print("Échec du traitement de l'audio.")
 
 if __name__ == "__main__":
-    audio_file_path = "converted_1.wav"
+    audio_file_path = "converted_4.wav"
     process_audio_file(audio_file_path)
 
