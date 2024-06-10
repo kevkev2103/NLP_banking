@@ -6,6 +6,7 @@ from pymongo import MongoClient
 from dotenv import load_dotenv
 import os
 from .models import SpeechToTextModel, TranslationModel, SentimentAnalysisModel, GenerateResponseModel
+from new import speak_to_microphone
 
 # Chargement des variables d'environnement
 load_dotenv()
@@ -81,7 +82,7 @@ class GenerateResponseChain(Chain):
         return ['transcription', 'translation', 'timestamp', 'sentiment', 'response']
 
 # Génération des modèles
-stt_model = SpeechToTextModel()
+stt_model = speak_to_microphone()
 translation_model = TranslationModel()
 sentiment_model = SentimentAnalysisModel()
 generate_response_model = GenerateResponseModel()

@@ -11,3 +11,5 @@ torch
 transformers
 sentencepiece # to instantiate tokenizer from Translation model
 sacremoses
+# sudo apt-get install portaudio19-dev python3-pyaudio
+pyaudio
