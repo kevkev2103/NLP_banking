@@ -1,9 +1,11 @@
-python-dotenv
-pymongo
-azure-cognitiveservices-speech
-azure-ai-textanalytics
-azure-core
-openai
+python-dotenv==1.0.0
+pymongo==4.3.3
+azure-cognitiveservices-speech==1.21.0
+azure-ai-textanalytics==5.2.0
+azure-core==1.26.0
+openai==0.27.0
+langchain==0.0.1  # Note: Use the actual latest version
+
 # python -m pip install "pymongo[srv]"
 # sudo apt-get install libssl-dev libffi-dev
 # wget http://archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.0g-2ubuntu4_amd64.deb
