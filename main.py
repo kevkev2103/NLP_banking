@@ -4,7 +4,7 @@ import azure.cognitiveservices.speech as speechsdk
 from pymongo import MongoClient, errors
 from azure.ai.textanalytics import TextAnalyticsClient
 from azure.core.credentials import AzureKeyCredential
-# import openai
+import openai
 
 #chargerment des variables d'env depuis le .env
 load_dotenv()
@@ -17,10 +17,16 @@ mongodb_db_name = os.getenv("MONGODB_DB_NAME")
 mongodb_collection_name = os.getenv("MONGODB_COLLECTION_NAME")
 text_analytics_key = os.getenv("AZURE_TEXT_ANALYTICS_KEY")
 text_analytics_endpoint = os.getenv("AZURE_TEXT_ANALYTICS_ENDPOINT")
-# api_key = os.getenv("OPENAI_API_KEY")
-# api_base = os.getenv("OPENAI_API_BASE")
-# api_deployment = os.getenv('OPENAPI_DEPLOYMENT')
-# api_version = os.getenv('OPENAPI_VERSION')
+api_key = os.getenv("OPENAI_API_KEY")
+api_base = os.getenv("OPENAI_API_BASE")
+api_deployment = os.getenv('OPENAPI_DEPLOYMENT')
+api_version = os.getenv('OPENAPI_VERSION')
+
+# Configuration de l'API OpenAI
+openai.api_key = api_key
+openai.api_base = api_base
+openai.api_type = 'azure'
+openai.api_version = api_version
 
 #connexion à la bdd MongoDB
 try:
@@ -119,8 +125,46 @@ def process_sentiment_analysis():
     except errors.PyMongoError as e:
         print(f"Erreur lors de la lecture depuis MongoDB: {e}")
 
-def analyze_reason(transcription):
-    
+def analyze_reason(transcription,sentiment):
+    #Analyse de la raison du sentimet
+    prompt= f"Le sentiment de la personne à l'origine de la transcription est {sentiment}.Voici la transcription:{transcription}.Pourquoi le sentiment de la personne est-il {sentiment}?"
+    response = openai.ChatCompletion.create(
+        engine=api_deployment,
+        model="gpt-3.5-turbo",
+        messages=[
+            {"role":"system", "content":"You are a helpful assistant"},
+            {"role":"user","content":prompt}
+        ]
+    )
+    llm_response = response['choices'][0]['message']['content'].strip()
+    print("Réponse du modèle OpenAI: {}".format(llm_response))
+    return llm_response
+
+def store_reason_analysis(audio_file_path, reason_analysis):
+    #enregistrer l'analyse de la raison du sentiment dans MongoDB
+    try:
+        collection.update_one(
+            {"audio_file_path": audio_file_path},
+            {"$set":{"reason_analysis": reason_analysis}}
+        )
+        print("Analyse de la raison enregistrée dans la base de donnée.")
+    except errors.PyMongoError as e:
+        print(f"Erreur lors de la mise à jour dans MongoDB:{e}")
+
+def process_reason_analysis():
+    # lire les analyses de sentiment depuis MongoDB, analyser la raison et stocker les résultats
+    try:
+        sentiment_records = collection.find({"sentiment_analysis": {"$exists": True}, "reason_analysis":{"$exists": False}})
+        for record in sentiment_records:
+            audio_file_path = record["audio_file_path"]
+            transcription = record["transcription"]
+            sentiment = record["sentiment_analysis"]["sentiment"]
+            reason_analysis = analyze_reason(transcription, sentiment)
+            store_reason_analysis(audio_file_path, reason_analysis)
+    except errors.PyMongoError as e:
+        print(f"erreur lors de la lecture depuis MongoDB: {e}")
+
+
 
 if __name__ == "__main__":
     audio_directory="audio"
@@ -129,4 +173,5 @@ if __name__ == "__main__":
             audio_file_path=os.path.join(audio_directory,filename)
             process_audio_file(audio_file_path)
     process_sentiment_analysis()
+    process_reason_analysis()
    
