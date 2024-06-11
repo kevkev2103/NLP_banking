@@ -13,3 +13,8 @@ sentencepiece # to instantiate tokenizer from Translation model
 sacremoses
 # sudo apt-get install portaudio19-dev python3-pyaudio
 pyaudio
+azure-ai-textanalytics
+openai
+# sudo apt update
+# sudo apt install pulseaudio
+# pip install openai==0.28
