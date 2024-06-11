@@ -18,3 +18,4 @@ openai
 # sudo apt update
 # sudo apt install pulseaudio
 # pip install openai==0.28
+pytest
