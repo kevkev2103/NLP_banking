@@ -1,0 +1,8 @@
+python-dotenv
+pymongo
+azure-cognitiveservices-speech
+azure-ai-textanalytics
+azure-core
+openai
+langchain
+gradio

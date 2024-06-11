@@ -66,7 +66,7 @@ with gr.Blocks(theme="freddyaboulton/dracula_revamped") as interface:
     gr.Markdown("# Analyse de sentiments de clients dans le contexte bancaire")
     gr.Image("img/handshake.jpg", label="Handshake Client", width=300, height=300)
     gr.Markdown("Chargez un fichier audio à analyser.")
-    audio_input = gr.Audio(type="filepath", label="Fichier audio")
+    audio_input = gr.Audio(type="filepath", sources="upload", label="Fichier audio")
     result_output = gr.Markdown(label="Résultat")
     
     submit_button = gr.Button("Analyser")
@@ -77,4 +77,4 @@ with gr.Blocks(theme="freddyaboulton/dracula_revamped") as interface:
 
 # Lancer l'application Gradio
 if __name__ == "__main__":
-    interface.launch()
+    interface.launch(server_name="0.0.0.0", server_port=7860)
