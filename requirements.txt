@@ -3,6 +3,6 @@ pymongo
 azure-cognitiveservices-speech
 azure-ai-textanalytics
 azure-core
-openai
+openai==0.28
 langchain
 gradio
