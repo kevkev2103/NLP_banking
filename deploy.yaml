@@ -1,0 +1,45 @@
+apiVersion: '2019-12-01'
+location: francecentral
+name: gradio_bank
+properties:
+  containers:
+  - name: app
+    properties:
+      image: melobgn/app_gradio_nlp
+      resources:
+        requests:
+          cpu: 1
+          memoryInGb: 4.5
+      ports:
+        - port: 7860
+      environmentVariables:
+        - name: AZURE_SUBSCRIPTION_KEY
+          value: "4aeb61cab47c47bab0a6a888cba92d25"
+        - name: AZURE_REGION
+          value: "francecentral"
+        - name: AZURE_TEXT_ANALYTICS_ENDPOINT
+          value: "https://chatemotions.cognitiveservices.azure.com/"
+        - name: AZURE_TEXT_ANALYTICS_KEY
+          value: "3339a5695d384af08bf6ee53feac2cd6"
+        - name: OPENAI_API_KEY
+          value: "7aa7c9061b1f4c2d984af9b53d58b6ce"
+        - name: OPENAI_API_BASE
+          value: "https://rpg-nlp.openai.azure.com/"
+        - name: OPENAPI_DEPLOYMENT
+          value: "game01"
+        - name: OPENAPI_VERSION
+          value: "2024-02-01"
+        - name: MONGODB_URI
+          value: "mongodb+srv://melodybugnon:melimelo@cluster0.eeslbcf.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+        - name: MONGODB_DB_NAME
+          value: "nlpbank"
+        - name: MONGODB_COLLECTION_NAME
+          value: "transcriptions"
+  osType: Linux
+  ipAddress:
+    type: Public
+    ports:
+    - protocol: tcp
+      port: 7860
+tags: null
+type: Microsoft.ContainerInstance/containerGroups
