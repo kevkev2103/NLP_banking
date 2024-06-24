@@ -28,6 +28,13 @@ jobs:
         run: | # le pipe | permet de "chaîner" plusieurs commandes à run en une seule fois
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+
+      - name: Set environment variables
+        env:
+          SPEECH_KEY: ${{ secrets.SPEECH_KEY }}
+          AZURE_TEXT_ANALYTICS_KEY: ${{ secrets.AZURE_TEXT_ANALYTICS_KEY }}
+        run: echo "Environment variables set"
+
       # 4ème étape : Run les tests
       - name: Run Tests 
         run: pytest 
