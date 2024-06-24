@@ -18,12 +18,17 @@ jobs:
         uses: actions/setup-python@v2 # Cette étape utilise l'action actions/checkout@v2 pour récupérer le code source de votre dépôt (github). Cela permet aux étapes suivantes d'accéder au code source pour effectuer des actions comme l'installation des dépendances et l'exécution des tests.
         with:
           python-version: 3.8
-      # 2ème étape : Install Requirements
+      # 2ème étape : Install System Requirements
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y portaudio19-dev
+      # 3ème étape : Install Requirements
       - name: Install Requirements 
         run: | # le pipe | permet de "chaîner" plusieurs commandes à run en une seule fois
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-      # 3ème étape : Run les tests
+      # 4ème étape : Run les tests
       - name: Run Tests 
         run: pytest 
 
