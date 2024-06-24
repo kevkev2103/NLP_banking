@@ -31,7 +31,7 @@ jobs:
 
       - name: Set environment variables
         env:
-          SPEECH_KEY: ${{ secrets.SPEECH_KEY }}
+          SPEECH_KEY: ${{ secrets.speech_key }}
           AZURE_TEXT_ANALYTICS_KEY: ${{ secrets.AZURE_TEXT_ANALYTICS_KEY }}
         run: echo "Environment variables set"
 
