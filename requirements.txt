@@ -1,0 +1,21 @@
+scipy # pour les formats .wav des fichiers audios
+python-dotenv # pour les variables d'environnement (avec fichier caché .env)
+azure-cognitiveservices-speech  # pour l'utilisation de Speech depuis Azure
+# python -m pip install "pymongo[srv]"
+# sudo apt-get install libssl-dev libffi-dev
+# wget http://archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.0g-2ubuntu4_amd64.deb
+# sudo dpkg -i libssl1.1_1.1.0g-2ubuntu4_amd64.deb
+pymongo
+langchain
+torch
+transformers
+sentencepiece # to instantiate tokenizer from Translation model
+sacremoses
+# sudo apt-get install portaudio19-dev python3-pyaudio
+pyaudio
+azure-ai-textanalytics
+openai
+# sudo apt update
+# sudo apt install pulseaudio
+# pip install openai==0.28
+pytest
