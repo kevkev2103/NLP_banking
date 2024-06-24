@@ -1,0 +1,31 @@
+# C'est le nom de votre pipeline CI. Dans les interfaces utilisateur des systèmes CI/CD (comme GitHub Actions), ce nom apparaîtra pour identifier ce pipeline particulier. 
+name: Python CI
+
+# Cette section définit les événements qui déclenchent l'exécution du pipeline CI. Ici, c'est un push et un pull_request qui déclenchent l'exécution du pipeline CI.
+on:
+  push:
+    branches:
+      - '**'
+    pull_request:
+      branches:
+        - tibo
+
+# Cette section contient la définition des jobs qui seront exécutés par le pipeline CI. Chaque job représente un ensemble de tâches que l'on veut exécuter sur une machine virtuelle.
+jobs:
+  build: # C'est le nom du job. Vous avez nommé ce job build, ce qui indique que ce job est responsable de la construction (et probablement des tests) du projet.
+    runs-on: ubuntu-latest # Cette section spécifie sur quel type de machine virtuelle le job doit s'exécuter. (Ici, les dernières versions de Windows & Ubuntu)
+    steps: # Cette section contient la liste des étapes que le job doit exécuter. Chaque étape est une tâche individuelle que la machine virtuelle doit accomplir.
+      - uses: actions/checkout@v2
+      # 1ère étape : Set-up Python & Github project?
+      - name: Set up Python 3.8 # Nom pour les étapes qui suivent
+        uses: actions/setup-python@v2 # Cette étape utilise l'action actions/checkout@v2 pour récupérer le code source de votre dépôt (github). Cela permet aux étapes suivantes d'accéder au code source pour effectuer des actions comme l'installation des dépendances et l'exécution des tests.
+        with:
+          python-version: 3.8
+      # 2ème étape : Install Requirements
+      - name: Install Requirements # Nom pour les étapes qui suivent
+        run: | # le pipe | permet de "chaîner" plusieurs commandes à run en une seule fois
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      # 3ème étape : Run les tests
+      - name: Run Tests # Nom pour les étapes qui suivent
+        run: pytest 
