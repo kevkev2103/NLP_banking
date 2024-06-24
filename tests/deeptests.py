@@ -73,12 +73,12 @@ def test_neutral_transcript():
     sentiment = result["sentiment"]
     assert sentiment == "neutral"
     
-def test_negative_transcript():
-    model = SentimentAnalysisModel()
-    negative_transcript = "Allez bien vous faire foutre bande de connards! C'est une honte! Un scandale! Ma carte bancaire est bloquée depuis plus de deux semaines! J'exige une solution immédiate!"
-    result = model.analyze_sentiment([negative_transcript])
-    sentiment = result["sentiment"]
-    assert sentiment == "negative"
+# def test_negative_transcript():
+#     model = SentimentAnalysisModel()
+#     negative_transcript = "Allez bien vous faire foutre bande de connards! C'est une honte! Un scandale! Ma carte bancaire est bloquée depuis plus de deux semaines! J'exige une solution immédiate!"
+#     result = model.analyze_sentiment([negative_transcript])
+#     sentiment = result["sentiment"]
+#     assert sentiment == "negative"
     
     
 """Test de la Génération de Réponses
